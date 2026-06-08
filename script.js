@@ -50,10 +50,55 @@ if (window.gsap && window.ScrollTrigger) {
       },
     });
   });
+
+  gsap.utils.toArray(".metric-number").forEach((metric) => {
+    const target = Number(metric.dataset.count || 0);
+    const value = { current: 0 };
+
+    gsap.to(value, {
+      current: target,
+      duration: 1.4,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: metric,
+        start: "top 85%",
+        once: true,
+      },
+      onUpdate: () => {
+        metric.textContent = String(Math.round(value.current));
+      },
+    });
+  });
+
+  gsap.utils.toArray(".feature-card, .case-card, .testimonial-card").forEach((card) => {
+    gsap.fromTo(
+      card,
+      { y: 28, opacity: 0.001 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.75,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: card,
+          start: "top 88%",
+          once: true,
+        },
+      }
+    );
+  });
 } else if (progress) {
+  document.querySelectorAll(".metric-number").forEach((metric) => {
+    metric.textContent = metric.dataset.count || metric.textContent;
+  });
+
   window.addEventListener("scroll", () => {
     const max = document.documentElement.scrollHeight - window.innerHeight;
     progress.style.width = `${(window.scrollY / max) * 100}%`;
+  });
+} else {
+  document.querySelectorAll(".metric-number").forEach((metric) => {
+    metric.textContent = metric.dataset.count || metric.textContent;
   });
 }
 
@@ -75,11 +120,42 @@ nav?.querySelectorAll("a").forEach((link) => {
 
 if (window.matchMedia("(pointer: fine)").matches && cursor && window.gsap) {
   window.addEventListener("mousemove", (event) => {
+    cursor.classList.add("is-active");
+
     gsap.to(cursor, {
       x: event.clientX,
       y: event.clientY,
       duration: 0.16,
       ease: "power2.out",
+    });
+  });
+
+  document.querySelectorAll("a, button, .feature-card, .case-card, .testimonial-card").forEach((element) => {
+    element.addEventListener("mouseenter", () => cursor.classList.add("is-hovering"));
+    element.addEventListener("mouseleave", () => cursor.classList.remove("is-hovering"));
+  });
+
+  document.querySelectorAll(".magnetic").forEach((element) => {
+    element.addEventListener("mousemove", (event) => {
+      const rect = element.getBoundingClientRect();
+      const x = event.clientX - rect.left - rect.width / 2;
+      const y = event.clientY - rect.top - rect.height / 2;
+
+      gsap.to(element, {
+        x: x * 0.12,
+        y: y * 0.18,
+        duration: 0.28,
+        ease: "power2.out",
+      });
+    });
+
+    element.addEventListener("mouseleave", () => {
+      gsap.to(element, {
+        x: 0,
+        y: 0,
+        duration: 0.35,
+        ease: "elastic.out(1, 0.45)",
+      });
     });
   });
 }
